@@ -1,0 +1,104 @@
+print("starting")
+import ussa1976
+import matplotlib
+import numpy as np
+matplotlib.use('TkAgg')
+
+import matplotlib.pyplot as plt
+
+#create a base atmosphere object: 
+#ds = ussa1976.compute()
+
+
+# scales the computed atmosphere object to starting at 0 altitude, going up to 100 km at steps of 1 meter
+# (units are in meters)
+# args are: (start height, end height, step interval)
+ds = ussa1976.compute(z=np.arange(0.0, 100001.0, 1.0), variables=["rho"])
+
+#number = input("what height do you want to look at? ")
+#number = int(number)
+
+#print("temperature")
+#print(ds["t"].values[number])
+#print(ds["p"].values[number])
+print(ds["rho"].values[0])
+
+# probably square gravity
+g = 9.81
+volume = 10
+massBase = 2
+weight = massBase * g
+
+# move these into function, these are the calcs to get fource. rhoDens is current variable
+
+rhoDens = 0
+buoyancyForce = rhoDens * volume * g
+Force = buoyancyForce - weight
+acceleration = Force/massBase 
+
+vList = []
+aList = []
+hList = []
+
+
+def currentHeight():
+    # with this assumes 1 sec. intervals
+ 
+    vHold = 0
+    yHold = 0.001
+
+    for t in range(100):
+        
+        # mildly inefficient
+        if(yHold <= 0):
+            break
+        rhoDens = ussa1976.compute(z=np.arange(yHold, yHold+1, 0.1), variables=["rho"])
+        rhoDens = rhoDens["rho"].values[0]
+        buoyancyForce = rhoDens * volume * g
+        Force = buoyancyForce - weight
+        acceleration = Force/massBase 
+        velocity = acceleration * 0.1 + vHold
+        height = velocity * 0.1 + yHold
+        vHold = velocity
+        yHold = height
+
+        aList.append(acceleration)
+        vList.append(velocity)
+        hList.append(height)
+#        print("a")
+#        print(acceleration)
+#        print("v")
+#        print(velocity)
+#        print("h")
+#        print(height)
+
+currentHeight()
+
+fig, ax = plt.subplots()
+print(len(hList))
+
+ax.plot(hList, vList, c="red")
+ax.plot(hList, aList, c="blue")
+
+#ax.plot(vList)
+#ax.plot(hList)
+#ax.set(xlim=(0, 8), xticks=np.arange(1, 8),
+#       ylim=(0, 8), yticks=np.arange(1, 8))
+plt.show()
+
+
+#plt.figure(dpi=100)
+#ds.rho.plot(xscale="linear")
+#plt.grid()
+#plt.show()
+
+
+
+
+#plot
+
+#plt.figure(dpi=100)
+#ds.rho.plot(y="z", xscale="linear")
+#plt.grid()
+#plt.show()
+
