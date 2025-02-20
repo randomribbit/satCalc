@@ -72,8 +72,10 @@ def currentHeight():
         if(yHold <0):
             break
         a = acceleration(yHold)        
-        v = a*deltaT + vHold
+        #v = a*deltaT + vHold
+        v = a*deltaT + vHold/2
         y = (1/2) * a * deltaT**2 + yHold
+        
         #y = a*deltaT + vHold
         vHold = v
         yHold = y
